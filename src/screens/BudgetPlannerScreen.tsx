@@ -50,8 +50,8 @@ export default function BudgetPlannerScreen() {
     setBudget({
       id: Date.now().toString(),
       category: data.category,
-      limit: Number(data.limit),
-      spent: 0,
+      budgetAmount: Number(data.limit),
+      spentAmount: 0,
     });
     setIsAdding(false);
     reset();
@@ -142,8 +142,8 @@ export default function BudgetPlannerScreen() {
           ) : (
             budgets.map((budget) => {
               const spent = getSpentAmount(budget.category);
-              const progress = Math.min((spent / budget.limit) * 100, 100);
-              const isOverBudget = spent >= budget.limit;
+              const progress = Math.min((spent / budget.budgetAmount) * 100, 100);
+              const isOverBudget = spent >= budget.budgetAmount;
 
               return (
                 <View key={budget.id} style={[styles.budgetCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}>
@@ -159,7 +159,7 @@ export default function BudgetPlannerScreen() {
                       {currencySymbol}{spent.toLocaleString()} <Text style={{ fontSize: 12 }}>spent</Text>
                     </Text>
                     <Text style={[styles.budgetLimit, { color: currentTheme.text }]}>
-                      {currencySymbol}{budget.limit.toLocaleString()}
+                      {currencySymbol}{budget.budgetAmount.toLocaleString()}
                     </Text>
                   </View>
 
