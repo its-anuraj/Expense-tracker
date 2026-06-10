@@ -7,6 +7,7 @@ import TransactionHistoryScreen from '../screens/TransactionHistoryScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import BudgetPlannerScreen from '../screens/BudgetPlannerScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,8 @@ export default function BottomTabNavigator() {
             iconName = focused ? 'pie-chart' : 'pie-chart-outline';
           } else if (route.name === 'Budget') {
             iconName = focused ? 'wallet' : 'wallet-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
           } else {
             iconName = 'help-outline';
           }
@@ -43,6 +46,7 @@ export default function BottomTabNavigator() {
       <Tab.Screen name="Add" component={AddTransactionScreen} options={{ title: 'Add' }} />
       <Tab.Screen name="Analytics" component={AnalyticsScreen} />
       <Tab.Screen name="Budget" component={BudgetPlannerScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

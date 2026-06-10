@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../store/useThemeStore';
+import { useTransactionStore } from '../store/useTransactionStore';
+import { useBudgetStore } from '../store/useBudgetStore';
 import { Colors } from '../constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,9 +15,31 @@ export default function ProfileScreen() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  const { resetTransactions } = useTransactionStore();
+  const { resetBudgets } = useBudgetStore();
+
   const toggleCurrency = () => {
     const nextCurrency = currency === 'INR' ? 'USD' : currency === 'USD' ? 'EUR' : 'INR';
     setCurrency(nextCurrency);
+  };
+
+  const handleResetData = () => {
+    Alert.alert(
+      "Reset All Data",
+      "Are you sure you want to delete all transactions and budgets? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete All", 
+          style: "destructive",
+          onPress: () => {
+            resetTransactions();
+            resetBudgets();
+            Alert.alert("Success", "All your data has been reset.");
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -69,10 +93,14 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-forward" size={20} color={currentTheme.textSecondary} />
         </TouchableOpacity>
         
-        <TouchableOpacity style={[styles.settingRow, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]} activeOpacity={0.7}>
+        <TouchableOpacity 
+          style={[styles.settingRow, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]} 
+          activeOpacity={0.7}
+          onPress={handleResetData}
+        >
           <View style={styles.settingIconTitle}>
-            <Ionicons name="log-out" size={24} color={currentTheme.danger} style={styles.icon} />
-            <Text style={[styles.settingText, { color: currentTheme.danger }]}>Logout</Text>
+            <Ionicons name="trash-bin" size={24} color={currentTheme.danger} style={styles.icon} />
+            <Text style={[styles.settingText, { color: currentTheme.danger }]}>Reset All Data</Text>
           </View>
         </TouchableOpacity>
 
