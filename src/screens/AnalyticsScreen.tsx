@@ -6,13 +6,13 @@ import { useTransactionStore } from '../store/useTransactionStore';
 import { Colors } from '../constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Smart Y-axis formatter — handles any scale without ugly decimals or duplicates
+// Smart Y-axis formatter — no double symbol, no fractional labels
 function formatYLabel(val: string, symbol: string, currency: string): string {
   const num = parseFloat(val);
   if (isNaN(num)) return '';
 
-  // Skip fractional chart-kit internal scale values (e.g. 0.25, 0.5, 0.75)
-  // These appear when max data value is very small (< 10)
+  // chart-kit passes fractional ticks (0.25, 0.5, 0.75) when max data is tiny
+  // Return empty string so they are invisible
   if (num > 0 && num < 10 && !Number.isInteger(num)) return '';
 
   const n = Math.round(num);
@@ -204,22 +204,30 @@ export default function AnalyticsScreen() {
             </View>
           </View>
 
-          <View style={[styles.card, { backgroundColor: currentTheme.card, borderColor: currentTheme.border, paddingVertical: 16 }]}>
-            <BarChart
-              data={barData}
-              width={screenWidth - 64}
-              height={230}
-              yAxisLabel={symbol}          // ← Dynamic currency symbol
-              yAxisSuffix=""
-              chartConfig={chartConfig}
-              verticalLabelRotation={0}
-              fromZero
-              showValuesOnTopOfBars={false} // ← Turned OFF (was showing ugly 1.00, 0.75)
-              withInnerLines={true}
-              withHorizontalLabels={true}
-              segments={4}                 // ← Clean 4 Y-axis gridlines
-            />
-          </View>
+          {hasIncome ? (
+            <View style={[styles.card, { backgroundColor: currentTheme.card, borderColor: currentTheme.border, paddingVertical: 16 }]}>
+              <BarChart
+                data={barData}
+                width={screenWidth - 64}
+                height={230}
+                yAxisLabel=""          // ← EMPTY: formatYLabel already includes symbol
+                yAxisSuffix=""
+                chartConfig={chartConfig}
+                verticalLabelRotation={0}
+                fromZero
+                showValuesOnTopOfBars={false}
+                withInnerLines={true}
+                withHorizontalLabels={true}
+                segments={4}
+              />
+            </View>
+          ) : (
+            <View style={[styles.emptyCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border, height: 160 }]}>
+              <Text style={{ fontSize: 32, marginBottom: 10 }}>📈</Text>
+              <Text style={[{ fontSize: 15, fontWeight: '600' }, { color: currentTheme.text }]}>No income recorded yet</Text>
+              <Text style={[{ fontSize: 13, marginTop: 4 }, { color: currentTheme.textSecondary }]}>Add income transactions to see your trend</Text>
+            </View>
+          )}
         </View>
 
       </ScrollView>
