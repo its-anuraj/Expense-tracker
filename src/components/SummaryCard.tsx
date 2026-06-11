@@ -10,18 +10,24 @@ interface SummaryCardProps {
 }
 
 // Compact formatter: 150000 → "1.5L", 50000 → "50K", 999 → "999"
+// Strips trailing zeros: "1.50" → "1.5", "1.00" → "1", "1.25" → "1.25"
+function trim(n: number): string {
+  return n.toFixed(2).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+}
+
 function compactAmount(value: number, currency: string): string {
   if (currency === 'INR') {
-    if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`;
-    if (value >= 100000)   return `${(value / 100000).toFixed(1)}L`;
-    if (value >= 1000)     return `${(value / 1000).toFixed(0)}K`;
+    if (value >= 10000000) return `${trim(value / 10000000)}Cr`;
+    if (value >= 100000)   return `${trim(value / 100000)}L`;      // ₹1,25,000 → 1.25L ✓
+    if (value >= 1000)     return `${Math.round(value / 1000)}K`;
     return `${Math.round(value)}`;
   } else {
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000)    return `${(value / 1000).toFixed(1)}K`;
+    if (value >= 1000000) return `${trim(value / 1000000)}M`;
+    if (value >= 1000)    return `${trim(value / 1000)}K`;
     return `${Math.round(value)}`;
   }
 }
+
 
 export default function SummaryCard({ title, amount, type = 'neutral' }: SummaryCardProps) {
   const { theme, currency } = useThemeStore();
