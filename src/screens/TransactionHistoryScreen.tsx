@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TransactionHistoryScreen() {
   const { theme } = useThemeStore();
-  const currentTheme = Colors[theme === 'system' ? 'light' : theme] || Colors.light;
+  const currentTheme = Colors[theme === 'system' ? 'dark' : theme] || Colors.dark;
   const { transactions } = useTransactionStore();
   
   const [filter, setFilter] = useState<'All' | 'Income' | 'Expense'>('All');

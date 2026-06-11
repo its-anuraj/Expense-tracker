@@ -12,11 +12,11 @@ interface ThemeState extends UserSettings {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'system',
+      theme: 'dark', // Default is dark mode
       currency: 'INR',
       setTheme: (theme) => set({ theme }),
       setCurrency: (currency) => set({ currency }),
-      resetTheme: () => set({ theme: 'system', currency: 'INR' }),
+      resetTheme: () => set({ theme: 'dark', currency: 'INR' }),
     }),
     {
       name: 'expenseiq-theme-storage',

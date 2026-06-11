@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTransactionStore } from '../store/useTransactionStore';
+import { useProfileStore } from '../store/useProfileStore';
 import { Colors } from '../constants/Colors';
 import SummaryCard from '../components/SummaryCard';
 import TransactionCard from '../components/TransactionCard';
@@ -10,8 +11,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const { theme } = useThemeStore();
-  const currentTheme = Colors[theme === 'system' ? 'light' : theme] || Colors.light;
+  const currentTheme = Colors[theme === 'system' ? 'dark' : theme] || Colors.dark;
   const { transactions } = useTransactionStore();
+  const { name } = useProfileStore();
 
   const totalIncome = transactions
     .filter((t) => t.type === 'Income')
@@ -71,7 +73,9 @@ export default function DashboardScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.header}>
-          <Text style={[styles.greeting, { color: currentTheme.textSecondary }]}>Hello!</Text>
+          <Text style={[styles.greeting, { color: currentTheme.textSecondary }]}>
+            {name ? `Hello, ${name.split(' ')[0]}! 👋` : 'Hello! 👋'}
+          </Text>
           <Text style={[styles.balanceTitle, { color: currentTheme.text }]}>Total Balance</Text>
           <Text style={[styles.balanceAmount, { color: currentTheme.primary }]}>
             ₹{balance.toLocaleString()}

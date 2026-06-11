@@ -24,7 +24,7 @@ type BudgetFormData = z.infer<typeof budgetSchema>;
 
 export default function BudgetPlannerScreen() {
   const { theme, currency } = useThemeStore();
-  const currentTheme = Colors[theme === 'system' ? 'light' : theme] || Colors.light;
+  const currentTheme = Colors[theme === 'system' ? 'dark' : theme] || Colors.dark;
   const currencySymbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : '€';
 
   const { budgets, setBudget, deleteBudget } = useBudgetStore();

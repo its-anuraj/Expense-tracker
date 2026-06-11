@@ -28,7 +28,7 @@ type TransactionFormData = z.infer<typeof transactionSchema>;
 export default function AddTransactionScreen() {
   const navigation = useNavigation();
   const { theme } = useThemeStore();
-  const currentTheme = Colors[theme === 'system' ? 'light' : theme] || Colors.light;
+  const currentTheme = Colors[theme === 'system' ? 'dark' : theme] || Colors.dark;
   const { addTransaction } = useTransactionStore();
 
   const { control, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<TransactionFormData>({

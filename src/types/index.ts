@@ -22,3 +22,8 @@ export interface UserSettings {
   theme: 'light' | 'dark' | 'system';
   currency: 'INR' | 'USD' | 'EUR';
 }
+
+export interface UserProfile {
+  name: string;
+  email: string;
+}
