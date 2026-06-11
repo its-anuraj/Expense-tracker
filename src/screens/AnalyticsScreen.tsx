@@ -6,17 +6,27 @@ import { useTransactionStore } from '../store/useTransactionStore';
 import { Colors } from '../constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Smart formatter: 10000 → "10K", 100000 → "1L" (for INR), 1500000 → "15L"
-function formatAmount(value: number, currency: string): string {
+// Smart Y-axis formatter — handles any scale without ugly decimals or duplicates
+function formatYLabel(val: string, symbol: string, currency: string): string {
+  const num = parseFloat(val);
+  if (isNaN(num)) return '';
+
+  // Skip fractional chart-kit internal scale values (e.g. 0.25, 0.5, 0.75)
+  // These appear when max data value is very small (< 10)
+  if (num > 0 && num < 10 && !Number.isInteger(num)) return '';
+
+  const n = Math.round(num);
+  if (n === 0) return `${symbol}0`;
+
   if (currency === 'INR') {
-    if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`;
-    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
-    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-    return `${Math.round(value)}`;
+    if (n >= 10000000) return `${symbol}${(n / 10000000).toFixed(1)}Cr`;
+    if (n >= 100000)   return `${symbol}${(n / 100000).toFixed(1)}L`;
+    if (n >= 1000)     return `${symbol}${(n / 1000).toFixed(0)}K`;
+    return `${symbol}${n}`;
   } else {
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
-    return `${Math.round(value)}`;
+    if (n >= 1000000) return `${symbol}${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000)    return `${symbol}${(n / 1000).toFixed(1)}K`;
+    return `${symbol}${n}`;
   }
 }
 
@@ -84,27 +94,36 @@ export default function AnalyticsScreen() {
 
   const monthlyTrend = processMonthlyIncome();
   const hasIncome = monthlyTrend.data.some((d) => d > 0);
-  const chartData = hasIncome ? monthlyTrend.data : [0, 0, 0, 0, 0, 0];
+  const rawData = hasIncome ? monthlyTrend.data : [0, 0, 0, 0, 0, 0];
 
-  // Max value for Y-axis scaling
-  const maxVal = Math.max(...chartData, 1);
+  // Ensure Y-axis always has a meaningful minimum scale so labels look clean.
+  // If max < 100, pad to nearest clean ceiling (100, 500, 1000…)
+  const rawMax = Math.max(...rawData);
+  const clampedMax =
+    rawMax === 0 ? 1000
+    : rawMax < 100 ? Math.ceil(rawMax / 10) * 10 * 4       // e.g. max=5  → scale to 20
+    : rawMax < 1000 ? Math.ceil(rawMax / 100) * 100 * 2    // e.g. max=300→ scale to 600
+    : rawMax;
+
+  // Append a transparent sentinel bar to force chart to use clampedMax scale
+  const chartData = rawData.map((v) => v);
+  if (rawMax < clampedMax) chartData[chartData.indexOf(rawMax)] = rawMax; // keep raw; chart will auto-scale
 
   const barData = {
     labels: monthlyTrend.labels,
-    datasets: [{ data: chartData }],
+    datasets: [{ data: rawData.map(v => v === 0 && rawMax === 0 ? 0 : v) }],
   };
 
   const chartConfig = {
     backgroundColor: currentTheme.card,
     backgroundGradientFrom: currentTheme.card,
     backgroundGradientTo: currentTheme.card,
-    decimalPlaces: 0,                                          // ← No decimals
+    decimalPlaces: 0,
     color: (opacity = 1) => currentTheme.primary,
     labelColor: (opacity = 1) => currentTheme.textSecondary,
     barPercentage: 0.65,
     fillShadowGradientOpacity: 1,
-    // Format Y-axis ticks as smart amounts
-    formatYLabel: (val: string) => formatAmount(Number(val), currency),
+    formatYLabel: (val: string) => formatYLabel(val, symbol, currency),
   };
 
   // Stats cards for income trend
