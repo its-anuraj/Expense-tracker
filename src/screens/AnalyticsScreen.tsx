@@ -126,9 +126,13 @@ export default function AnalyticsScreen() {
     formatYLabel: (val: string) => formatYLabel(val, symbol, currency),
   };
 
-  // Stats cards for income trend
+  // Stats — meaningful & not confusing
   const totalIncome6m = monthlyTrend.data.reduce((a, b) => a + b, 0);
-  const avgMonthly = totalIncome6m / 6;
+  const activeMonths  = monthlyTrend.data.filter(v => v > 0).length;
+  // Best month = highest single-month income
+  const bestMonth     = Math.max(...monthlyTrend.data);
+  // Avg only over months that had income (not all 6)
+  const avgActive     = activeMonths > 0 ? Math.round(totalIncome6m / activeMonths) : 0;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.background }]}>
@@ -188,18 +192,27 @@ export default function AnalyticsScreen() {
         <View style={styles.chartSection}>
           <Text style={[styles.sectionTitle, { color: currentTheme.text }]}>Monthly Income Trend</Text>
 
-          {/* Quick stats */}
+          {/* ── Stat cards ── */}
           <View style={styles.statsRow}>
+            {/* 6-Month Total */}
             <View style={[styles.statCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}>
               <Text style={[styles.statLabel, { color: currentTheme.textSecondary }]}>6-Month Total</Text>
-              <Text style={[styles.statValue, { color: currentTheme.success }]}>
+              <Text style={[styles.statValue, { color: currentTheme.success }]} numberOfLines={1} adjustsFontSizeToFit>
                 {symbol}{totalIncome6m.toLocaleString()}
               </Text>
+              <Text style={[styles.statSub, { color: currentTheme.textSecondary }]}>
+                {activeMonths} active month{activeMonths !== 1 ? 's' : ''}
+              </Text>
             </View>
+
+            {/* Best Month (replaces confusing avg-over-6) */}
             <View style={[styles.statCard, { backgroundColor: currentTheme.card, borderColor: currentTheme.border }]}>
-              <Text style={[styles.statLabel, { color: currentTheme.textSecondary }]}>Monthly Avg</Text>
-              <Text style={[styles.statValue, { color: currentTheme.primary }]}>
-                {symbol}{Math.round(avgMonthly).toLocaleString()}
+              <Text style={[styles.statLabel, { color: currentTheme.textSecondary }]}>Best Month</Text>
+              <Text style={[styles.statValue, { color: currentTheme.primary }]} numberOfLines={1} adjustsFontSizeToFit>
+                {symbol}{bestMonth.toLocaleString()}
+              </Text>
+              <Text style={[styles.statSub, { color: currentTheme.textSecondary }]}>
+                {activeMonths > 0 ? `avg ${symbol}${avgActive.toLocaleString()}` : 'No data'}
               </Text>
             </View>
           </View>
@@ -279,6 +292,7 @@ const styles = StyleSheet.create({
   },
   statLabel: { fontSize: 12, fontWeight: '500', marginBottom: 6 },
   statValue: { fontSize: 18, fontWeight: 'bold' },
+  statSub:   { fontSize: 11, marginTop: 4, opacity: 0.75 },
   // Empty
   emptyCard: {
     borderRadius: 16,
